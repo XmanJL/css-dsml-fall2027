@@ -4,23 +4,8 @@ A collaborative data science and machine learning project organized by CSS for F
 
 ## Team
 
-### Supervisors
-
-- Jasper Liu
-- Liam Buckman
-
-### Developers
-
-- Hector Hernandez
-- Timothy Cortez
-- Kevin Phon
-- Anden Beers
-- Sarah Liu
-- Katia Choi
-- MD Arif Arman
-- Aaron Strong
-- Jessica Gonzalez
-- Grecia Mendoza
+- Supervisors: Jasper Liu, Liam Buckman
+- Developers:  Hector Hernandez, Timothy Cortez, Kevin Phon, Anden Beers, Sarah Liu, Katia Choi, MD Arif Arman, Aaron Strong, Jessica Gonzalez, Grecia Mendoza
 
 ## Dataset
 
@@ -54,4 +39,4 @@ The `data/` and `models/` directories are ignored by Git. They contain large met
 
 ## Contributing
 
-Before start working on an issue, review the project workflow in [CONTRIBUTING.md](./CONTRIBUTING.md).
+Before starting work on an issue, review the project workflow in [CONTRIBUTING.md](./CONTRIBUTING.md).
