@@ -62,4 +62,4 @@ Of the 987 duplicated rows in the raw file, 532 remained after the empty-list dr
 ## 8. Notes and limitations
 - **Coverage trade-off:** about a third of the movies (14,795 of 46,419) have no keywords and are excluded from this table. Anything that needs every movie should join back to `movies_metadata.csv` on `id`.
 - **Titles:** `keywords.csv` has only `id`, not titles. Titles live in `movies_metadata.csv`.
-- **Data is not committed:** `data/` is gitignored per `CONTRIBUTING.md`. Run the notebook top to bottom to regenerate `data/processed/keywords_clean.json` (columns `id`, `keyword_names_clean`).
+- **Data is not committed:** `data/` is gitignored per `CONTRIBUTING.md`. Run the notebook top to bottom to regenerate `data/processed/keywords_clean.csv` (columns `id`, `keyword_names_clean`).
