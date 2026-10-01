@@ -1,52 +1,28 @@
-# Release Notes & Issue Resolution Summary
-## Executive Summary
-This document provides a log on how I went about solving different issues that were assignedn for Isssue 3: Clean Cast and Crew Information.
+# Issue #3: Credits Data Cleaning
 
-### 1. Inspect the dataset dimensions, data types, missing values, and duplicate rows 
-* **Resolution Strategy:** 
-  Checked shape, dtypes, missing values, and duplicate rows (excluding `cast`/`crew`,
-since list-type columns can't be checked with `.duplicated()`).
-### 2. Parse `cast` and `crew`
-* **Resolution Strategy:** 
-  `cast`/`crew` were stringified lists of dictionaries. Converted to real Python lists with
-`ast.literal_eval`, applied only where the value is a string.
-### 3. Check for invalid or duplicated movie ID's
-* **Resolution Strategy:** 
-  44 movie IDs had duplicate rows (149 total rows involved — some movies appeared 3-4
-times). Manually inspected the duplicates; title and release date matched exactly across
-copies, confirming these are genuine repeated entries, not different movies incorrectly
-sharing an ID. Removed with `drop_duplicates(subset='id', keep='first')`. Verified 0
-duplicate IDs remain after cleanup.
-### 4. Extracting: Director, Top five cast members, Cast and Crew Size 
-* **Resolution Strategy:** 
-  From `crew`/`cast`, added:
-- `director` — crew member with job == 'Director'
-- `top_five_cast` — first five cast members' names (billing order)
-- `cast_size` / `crew_size` — count of cast/crew members
-- `cast_names` — full list of cast member names, consistent format (every row a list,
-  empty list `[]` for the 4 rows with no cast data)
-### 5. Store cast memebers in a consistent format 
-* **Resolution Strategy:** 
-  Cast data was originally stored as a list of dictionaries per movie, with each dictionary
-containing extra fields (`character`, `credit_id`, `gender`, `order`, etc.) beyond just
-the actor's name. A `cast_names` column was created to hold just a plain list of names,
-dropping the extra fields. Every row is guaranteed to be a list — verified with
-`df['cast_names'].apply(type).value_counts()`, which returned a single type
-(`<class 'list'>`) across all rows, confirming no mixed types remain.
-### 6. Handle movies with missing cast or crew information 
-* **Resolution Strategy:** 
-  4 movies had no matching entry in `credits.csv` after the merge, leaving `cast`/`crew` as
-`NaN`. Rather than dropping these rows, each extraction function (`get_director`,
-`get_top_five_cast`, `get_cast_size`, `get_crew_size`, `get_all_cast_names`) checks
-`isinstance(x, list)` before processing, and returns a safe default (`None`, `[]`, or `0`)
-for rows with missing data. This preserves all original movies in the dataset while
-avoiding errors from trying to iterate over a missing (NaN/float) value.
-### 7. Keep one row per movie 
-* **Resolution Strategy:** 
-  44 movie IDs had duplicate rows (149 total rows involved, with some movies appearing 3-4
-times). The duplicates were inspected directly — title and release date matched exactly
-across each set of duplicate rows, confirming these were genuine repeated entries rather
-than different movies incorrectly sharing an ID. Removed with
-`drop_duplicates(subset='id', keep='first')`, keeping the first occurrence of each movie.
-Verified afterward with `df['id'].duplicated().sum()`, which returned 0 — confirming every
-movie ID now appears exactly once.
+## Goal
+
+Clean `data/raw/credits.csv` and create one usable credits record per movie. The output is saved locally as `data/processed/credits.csv`.
+
+## What We Found
+
+The source file has 45,476 rows and three columns: `cast`, `crew`, and `id`. The cast and crew values were text representations of lists. There were no missing CSV cells, but some lists were empty.
+
+We found 37 exact duplicate rows. After removing them, seven movie IDs still had two different source records. Those pairs contained the same cast names and crew members, although some crew entries appeared in a different order.
+
+## Cleaning Decisions
+
+- Parsed `cast` and `crew` into Python lists.
+- Selected the first crew member labeled `Director`.
+- Sorted cast members by their `order` field and retained up to five names.
+- Counted all cast and crew members, not only those displayed in the top-five list.
+- Kept movies with incomplete credits: an empty cast becomes `[]` and size `0`; an empty crew has size `0` and no director.
+- Removed exact duplicate rows, then kept the first source record for each repeated movie ID. This gives one repeatable choice per ID. For a movie with multiple credited directors, crew ordering can affect which director is selected.
+
+## Result and Checks
+
+The processed file has **45,432 rows** and these columns: `id`, `director`, `top_five_cast`, `cast_size`, and `crew_size`. Cast names are stored as JSON lists so another program can read them consistently.
+
+We read the saved CSV back and verified that every ID is present and unique, every cast value is a readable JSON list, and the required columns are present. The final file includes 2,414 movies with no cast, 771 with no crew, and 887 with no listed director.
+
+The processed CSV is kept locally because the repository ignores the `data/` folder. The notebook contains the steps needed to reproduce it.
