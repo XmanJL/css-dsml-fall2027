@@ -5,8 +5,8 @@ Run `models\cleanKeywords.py` to read `data\raw\keywords.csv` and output `data\p
 Preprocess `keywords.csv` dataset by cleaning and normalizing the keywords and rows. Output a new, cleaned version for feature engineering.
 
 ## 2. Raw Data
-- Dataset dimensions: 46,419 rows x 2 columns (one row per movie)
-- Columns: [`id`, `keywords`] 
+- Dataset dimensions: 46,419 rows x 2 columns (one row per movie).
+- Columns: [`id`, `keywords`] Ex:
 
     | row | id | keywords |
     |---|---|---|
@@ -16,27 +16,29 @@ Preprocess `keywords.csv` dataset by cleaning and normalizing the keywords and r
 - Rows with no keywords are set as empty lists instead of null.
 
 ## 3. Decisions 
-- Drop rows with empty keyword lists
+- Drop rows with empty keyword lists. Ex:
 
-    ex. row 9: `45325,[]`
-- Drop rows with duplicate movie IDs and identical keywords
+    | row | id | keywords |
+    |---|---|---|
+    |9| 45325 | [] |
+ 
+- Drop rows with duplicate movie IDs and identical keywords. Ex:
 
-    ex. remove the second row
+    | row | id | keywords |
+    |---|---|---|
+    |35784| 55949 | [{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}, {'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}] |
+    |36741| 55949 | [{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}, {'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}] |
+- Combine rows with duplicate movie IDs but different keywords. Ex: 
 
-    row 35784: `55949,"[{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}, {'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}]"`
-
-    row 36741: `55949,"[{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}, {'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}]"`
-- Combine rows with duplicate movie IDs but different keywords
-
-    ex. if: 
-
-    row 35784: `55949,"[{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}]"`
-
-    row 36741: `55949,"[{'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}]"`
+    | row | id | keywords |
+    |---|---|---|
+    |35784| 55949 | [{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}] |
+    |36741| 55949 | [{'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}] |
     
-    They would be combined into 1 row:
-
-    `55949,"[{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}, {'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}]"`
+    They would combine into 1 row:
+    | row | id | keywords |
+    |---|---|---|
+    |35784| 55949 | [{'id': 293, 'name': 'female nudity'}, {'id': 3133, 'name': 'vampire'}, {'id': 9717, 'name': 'based on comic'}, {'id': 9951, 'name': 'alien'}] |
 - Convert all keywords to lowercase
 - Remove only unnecessary whitespaces in keywords
     
