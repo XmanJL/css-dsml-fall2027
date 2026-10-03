@@ -1,6 +1,7 @@
 # large files
 /data
 /models
+.vscode
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -220,3 +221,6 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+README.md
+requirements.txt
+.DS_Store
