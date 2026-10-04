@@ -1,8 +1,3 @@
-# large files
-/data
-/models
-.vscode
-
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
@@ -221,6 +216,9 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-README.md
-requirements.txt
+
+# other large / unnecessary files
 .DS_Store
+/data
+/models
+.vscode
