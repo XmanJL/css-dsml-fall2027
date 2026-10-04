@@ -15,9 +15,23 @@ The columns included in this part were:
 - `production_countries`
 - `spoken_languages`
 
+## Preprocessing Decisions
+
+For my part of the preprocessing, I worked with `id`, `original_title`, `genres`, `production_countries`, and `spoken_languages`.
+
+For the three nested columns, I used `ast.literal_eval` to safely turn the values into lists and dictionaries. I then extracted the `name` from each dictionary so that the final data would be easier to read and use. When a movie had multiple values, I separated them using `|`.
+
+I also removed repeated values within the same movie and stripped extra whitespace from the names. Empty lists, missing values, or values that did not have any usable names were kept as missing values. Some of the language entries had a language code but a blank `name`, so I skipped those blank names instead of replacing them with the code since the goal was to keep readable language names.
+
+While checking the `id` column, I found 3 rows with invalid IDs that were actually dates. Looking at the full rows showed that the data in those rows was shifted/malformed, so I removed those records.
+
+I also found 29 movie IDs that appeared more than once, involving 59 rows total. I checked the cleaned values for these duplicate IDs and they were the same, so I kept the first occurrence of each ID to make sure there was only one row per movie.
+
+Finally, I checked that there were no duplicate IDs, repeated values within the nested columns, or empty strings left in the cleaned data.
+
 ## Cleaning the Nested Columns
 
-Some of the columns, such as `belongs_to_collection`, `production_companies`,  `genres`, `production_countries`, and `spoken_languages`, were stored as strings containing lists and dictionaries. We used `ast.literal_eval` to safely convert these strings back into their actual Python structures.
+Some of the columns, such as `belongs_to_collection`, `production_companies`, `genres`, `production_countries`, and `spoken_languages`, were stored as strings containing lists and dictionaries. We used `ast.literal_eval` to safely convert these strings back into their actual Python structures.
 
 From there, we extracted the readable `name` values instead of keeping the full dictionaries.
 
