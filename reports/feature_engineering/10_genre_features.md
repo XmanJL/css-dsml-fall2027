@@ -35,3 +35,33 @@ A list of all unique genres was created by using `df['genres'].dropna().str.spli
 
 The final dataset contains all original columns that data was pulled from unless it was made absolete by a new column, as well a renaming columns for clarity. This includes dropping `genres`, and renaming `keyword_names_clean` to `keywords` and `top_five_cast` to `top_cast`.
 
+# Grecia's Report
+# Date and Numerical Feature Engineering
+
+## Overview
+
+For my part of the feature engineering task, I created additional date and numerical features using the existing movie metadata dataset. The goal was to provide more useful information about each movie by extracting information from its release date and transforming numerical values such as budget, revenue, and popularity. These features can be used as inputs for future data analysis and machine learning models.
+
+## Date Feature Implementation
+
+The `release_year`, `release_month`, and `release_decade` columns were derived from the existing `release_date` column in `movies_metadata.csv`.
+
+First, the release dates were converted into datetime values using `pd.to_datetime()` with `errors="coerce"` so that invalid dates would be handled as missing values.
+
+The `release_year` column stores the year a movie was released, while `release_month` stores its release month. The `release_decade` column groups movies by decade by rounding the release year down to the nearest multiple of ten. For example, a movie released in 1995 would have a `release_decade` value of 1990.
+
+These features make it easier to analyze patterns in movie releases across different years, months, and decades.
+
+## Numerical Feature Implementation
+
+The `log_budget`, `log_revenue`, and `log_popularity` columns were created from the existing `budget`, `revenue`, and `popularity` columns. These source columns were converted to numeric values using `pd.to_numeric()` with `errors="coerce"` to handle values that could not be converted.
+
+The budget, revenue, and popularity features were transformed using `np.log1p()`, which calculates the natural logarithm of one plus the original value. This transformation can help reduce the effect of very large values and make highly skewed numerical data more manageable for analysis. Negative values were treated as missing before applying the transformation.
+
+The `runtime` column was retained as a numerical feature representing the movie's duration in minutes.
+
+## Final Format
+
+The new features were merged into the existing feature-engineered dataset using the movie `id` column. Before merging, duplicate IDs and records with missing IDs were removed from the metadata used to create these features. The merge was validated as one-to-one to help ensure that the additional features did not introduce duplicate movie records.
+
+The resulting dataset contained 45,433 rows and 51 columns, with zero duplicate IDs after the merge. The final dataset was saved as `data/features/10_genre_features.csv`.
