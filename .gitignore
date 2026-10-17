@@ -219,8 +219,6 @@ __marimo__/
 
 # other large / unnecessary files
 .DS_Store
-/data/processed
-/data/raw
+/data
 /models
 .vscode
-/data/features/11_language_features.csv
