@@ -64,11 +64,15 @@ At 50%, 10 votes is too little, and choosing too small of a minimum creates nois
 ## 4. Results
 Resulting file is: `data\features\07_rating_features.csv`  
 Dimensions: 11,508 rows x 34 columns  
+Dropped 75% of rows, going from 45,433 to 11,508 because of the `MIN_VOTE_COUNT`  
 Final columns:  
 `['id', 'vote_average', 'vote_count', 'release_year', 'release_month', 'release_decade', 'log_budget', 'log_revenue', 'runtime', 'log_popularity', 'genre_count', 'has_collection', 'company_count', 'country_count', 'spoken_language_count', 'cast_size', 'crew_size', 'has_director', 'keyword_count', 'title_word_count', 'overview_word_count', 'title_differs_from_original', 'genres', 'production_companies', 'production_countries', 'spoken_languages', 'director', 'top_cast', 'keywords', 'title', 'original_title', 'overview', 'original_language', 'status']`  
-Dropped 75% of rows, going from 45,433 to 11,508 because of the `MIN_VOTE_COUNT`
+Important Columns:
+- Some columns/features that I think are important or relevant to a person's review of a movie include `genres`, `log_popularity`, `director`, and `top_cast`.
 
 ## 5. Additional Notes
 We edited the 01_metadata_cleaning model and preprocessed `data\raw\movies_metadata.csv` again because the original cleaned metadata csv file still had duplicate rows. 
 
 `MIN_VOTE_COUNT` can be edited to produce csv files with more or less rows. Keep in mind, there should be a minimum for how many votes a movie should have for its average score to be accurate or meaningful. Otherwise, it would create noisy data for training and testing.
+
+Not all columns may prove to be necessary, they can be dropped or used as the next task requires. More columns allow for flexibility in testing different features and deciding which are the most useful or impactful.
