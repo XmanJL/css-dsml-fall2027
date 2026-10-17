@@ -1,7 +1,7 @@
 # 11 – Language Features
 
 **Notebook:** `notebooks/feature_engineering/11_language_features.ipynb`
-**Output:** `data/features/11_language_features.csv` (45,422 rows × 32 columns)
+**Output:** `data/features/11_language_features.csv` (45,422 rows × 33 columns; listed in `.gitignore`, so regenerate it by running the notebook)
 **Presentation time:** ≤ 5 minutes
 
 ---
@@ -84,27 +84,35 @@ The preprocessing notebooks 01–05 were run first to produce the `processed/` f
 ### 5.6 Modeling inputs (readable text)
 - Columns: `genres`, `production_companies`, `production_countries`, `director`, `top_cast`, `keywords`, `title`, `original_title`, `overview`, `status`.
 - `top_cast` and `keywords` were converted from list-strings to the same `A|B|C` format the other columns use. No name contains `|`, so the separator is safe.
-- Missing text is filled with an empty string in this table. Note that reading the CSV back with pandas turns empty strings into NaN again.
+- Missing text is handled in section 6.
 - `status` is almost constant (44,975 of 45,422 are "Released"), so expect little signal from it.
 
 ### 5.7 Additional features
 - **`has_tagline`** (from the raw file): 55.6% of English movies have a tagline versus 18.8% of non-English. Correlation with "is English" is 0.34, the strongest of the candidates tested. It mostly measures how well-documented a movie is, not its content.
-- **`budget_known`**: 1 when a budget was recorded. 23% of English movies have one versus 11% of non-English.
+- **`budget_known` and `revenue_known`**: 1 when a budget (or revenue) was recorded. 23% of English movies have a budget versus 11% of non-English. They also keep the "was it known?" information after the log columns are filled in (section 6).
 - **Considered and rejected: `adult`.** Only 9 of 45,422 movies are flagged, so it carries almost no signal. `vote_count` (correlation 0.10) and `has_homepage` (0.08) were weaker than the two chosen features.
 
-## 6. Final table and validation
+## 6. Handling missing values
 
-- 45,422 rows × 32 columns. Checks: `id` is unique, the target has no missing values, and `original_language` is not in the output (it would leak the target).
+| Column(s) | Missing before | Handling |
+|---|---|---|
+| `log_budget` | 36,542 | Median, plus a `budget_known` flag |
+| `log_revenue` | 38,024 | Median, plus a `revenue_known` flag |
+| `runtime` | 1,817 | Median |
+| `log_popularity` | 3 | Median |
+| `release_year`, `release_month`, `release_decade` | 87 each | Median year, most common month, decade recomputed from the year |
+| `genres`, `production_companies`, `production_countries`, `director`, `status` | 2,441 / 11,867 / 6,280 / 888 / 84 | `Unknown` |
+| `title`, `overview`, `keywords`, `top_cast` | 3 / 1,103 / 14,337 / 1 (plus 2,410 empty cast lists) | Empty string |
+
+- More than 80% of budgets and revenues are unknown, so the filled log columns are mostly a constant. The `*_known` flags carry the real information.
+- Medians are computed on the whole table and do not use the target.
+- `pd.read_csv` turns empty strings back into NaN. Use `keep_default_na=False` when reading the free-text columns.
+- After these steps the final table has no missing values (checked with an assert).
+
+## 7. Final table and validation
+
+- 45,422 rows × 33 columns. Checks: `id` is unique, the target has no missing values, `original_language` is not in the output (it would leak the target), and no missing values remain.
 - Columns, in order: identifier, target, date, financial/numeric, production, credits, keywords/text, extras, then the ten modeling inputs.
-- Raw columns replaced by engineered ones (`budget`, `revenue`, `popularity`, `release_date`, `belongs_to_collection`) are not in the output.
-
-| Column | Missing |
-|---|---|
-| `log_revenue` | 38,024 |
-| `log_budget` | 36,542 |
-| `runtime` | 1,817 |
-| `release_year`, `release_month`, `release_decade` | 87 each |
-| `log_popularity` | 3 |
-
-All other columns have no missing values.
+- **Columns removed as redundant:** `original_language` (the target in raw form), `budget`, `revenue` and `popularity` (replaced by their log versions), `release_date` (replaced by year, month and decade), and `belongs_to_collection` (replaced by `has_collection`).
+- **Correlation check:** the only pair above 0.7 is `release_year` and `release_decade` (0.993). Both were kept because the issue requires both, but a model should use only one of them.
 
