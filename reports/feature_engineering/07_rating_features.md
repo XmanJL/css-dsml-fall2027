@@ -71,8 +71,6 @@ Important Columns:
 - Some columns/features that I think are important or relevant to a person's review of a movie include `genres`, `log_popularity`, `director`, and `top_cast`.
 
 ## 5. Additional Notes
-We edited the 01_metadata_cleaning model and preprocessed `data\raw\movies_metadata.csv` again because the original cleaned metadata csv file still had duplicate rows. 
-
 `MIN_VOTE_COUNT` can be edited to produce csv files with more or less rows. Keep in mind, there should be a minimum for how many votes a movie should have for its average score to be accurate or meaningful. Otherwise, it would create noisy data for training and testing.
 
 Not all columns may prove to be necessary, they can be dropped or used as the next task requires. More columns allow for flexibility in testing different features and deciding which are the most useful or impactful.
