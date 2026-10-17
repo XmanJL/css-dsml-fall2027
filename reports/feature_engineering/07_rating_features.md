@@ -52,6 +52,8 @@ This focuses the dataset on movies with more audience votes while reducing cover
 
 For later modeling, `vote_average` is the target, `vote_count` is used for sample selection or weighting, and `id` identifies each movie. Vote count should not be treated as an ordinary prediction feature for this assignment.
 
+Note: You can adjust the number in the program if you want to drop less rows or drop even more rows.
+
 ## Output and reproducibility
 
 The notebook exports `filtered_merged_df` to:
@@ -64,20 +66,20 @@ The export uses `index=False`. The current code contains 22 merged columns plus 
 
 The path setup uses `Path.cwd().parent.parent`, so the notebook's working directory must be the project's `notebooks/feature_engineering` folder. Run the cells from top to bottom to reload the source data and reproduce the cleaning, merging, filtering, and export.
 
-## Limitations and remaining work
 
-Keeping the first duplicate ID does not resolve differences between conflicting records. Other missing values are retained, and the vote-count filter does not explicitly remove missing target ratings. No prediction model is trained or evaluated in this notebook.
+## Results
 
-The row count matches the partner's screenshot, but the current notebook has not yet produced the reference's full 34-column set. These 14 columns remain to be added:
+Resulting file is `data/features/07_rating_features.csv`
 
-| Group | Missing columns |
-| --- | --- |
-| Log features | `log_budget`, `log_revenue`, `log_popularity` |
-| List counts | `genre_count`, `company_count`, `country_count`, `spoken_language_count`, `keyword_count` |
-| Boolean features | `has_collection`, `has_director`, `title_differs_from_original` |
-| Text counts | `title_word_count`, `overview_word_count` |
-| Cast information | `top_cast`, sourced from the processed credits column `top_five_cast` |
+Dimensions: 11,508 rows x 25 columns
 
-After deriving these features, matching the reference's 34-column export also requires excluding the five source columns `release_date`, `budget`, `revenue`, `popularity`, and `belongs_to_collection` from the final column selection.
+Dropped 75% of rows going from 45,433 to 11508 because of `min_vote_count`
 
-Source reviewed: `07_rating_features(1).ipynb` and its saved outputs.
+Final Columns:
+        `['id', 'release_date', 'budget', 'revenue', 'runtime', 'popularity',`
+       `'vote_average', 'genres', 'vote_count', 'belongs_to_collection',`
+       `'production_companies', 'spoken_languages', 'production_countries',`
+       `'title', 'original_title', 'overview', 'original_language', 'status',`
+       `'director', 'cast_size', 'crew_size', 'keywords', 'release_year',`
+       `'release_month', 'release_decade']`
+
