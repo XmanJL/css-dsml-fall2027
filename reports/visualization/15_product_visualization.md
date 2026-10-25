@@ -5,13 +5,13 @@
 
 ## Objective
 
-The purpose of this notebook is to explore how movie characteristics relate to log popularity. The analysis examines genre count, production company count, production country count, spoken language count, and whether a movie belongs to a collection.
+The purpose of this notebook is to explore how movie characteristics relate to popularity. The analysis examines genre count,company count,country count, spoken language count, and whether a movie belongs to a collection.
 
-The notebook contains four scatterplots, one box plot, and five count heatmaps. Together, these charts show individual movie values, differences between groups, and where movie records are concentrated.
+The notebook contains four scatterplots, one box plot, and five heatmaps. Together, these charts show individual movie values, differences between groups, and where movie records are concentrated.
 
 ## Data and preparation
 
-The notebook loads the CSV into a pandas DataFrame named `popularity_dataset`. It selects individual columns as Series and uses NumPy arrays for the scatterplots. Matplotlib displays the charts, while `ceil()` from Python's `math` module assigns values to heatmap groups.
+The notebook loads the CSV into a pandas DataFrame named `popularity_dataset`. It selects individual columns as Series and uses `NumPy` arrays for the scatterplots. `Matplotlib` displays the charts, while `ceil()` from Python's `math` module assigns values to heatmap groups.
 
 The project path is defined using `Path.cwd().parent.parent`. This assumes the notebook's working directory is two levels below the project root.
 
@@ -30,13 +30,13 @@ This report uses the notebook's code and saved chart outputs. The source CSV was
 
 ## Scatterplot and box plot findings
 
-### Genre count and log popularity
+### `genre_count` vs. `target_log_popularity`
 
 Each point represents one movie. The x-axis shows genre count, and the y-axis shows log popularity.
 
 The saved scatterplot shows many overlapping points at genre counts from 1 to 5, with a wide range of popularity values at each count. Some high-popularity movies appear at counts from 2 to 5. The plot does not establish that adding genres consistently increases popularity or that three genres is an optimal number.
 
-### Collection membership and log popularity
+### `has_collection` vs. `target_log_popularity`
 
 The notebook uses a **box plot** to compare movies that belong to a collection with those that do not.
 
@@ -44,7 +44,7 @@ The collection group has a visibly higher median and a higher middle range of lo
 
 Both groups contain high-value outliers. The chart suggests an association between collection membership and higher typical log popularity, but it does not show that collection membership causes popularity.
 
-### Production company count and log popularity
+### `company_count` vs. `target_log_popularity`
 
 The x-axis shows the number of production companies, and the y-axis shows log popularity.
 
@@ -52,7 +52,7 @@ Most of the visible points are concentrated at lower company counts. Movies with
 
 The notebook's saved maximum company count is **26**.
 
-### Production country count and log popularity
+### `country_count` vs. `target_log_popularity`
 
 The x-axis shows production country count, and the y-axis shows log popularity.
 
@@ -60,7 +60,7 @@ Many movies are concentrated at one to a few production countries. Popularity va
 
 The notebook's saved maximum country count is **25**.
 
-### Spoken language count and log popularity
+### `spoken_language_count` vs. `target_log_popularity`
 
 The plotted x-values represent spoken language count, and the y-values represent log popularity.
 
@@ -68,7 +68,7 @@ Most visible points occur at relatively low language counts, with many below a l
 
 The notebook's saved maximum spoken language count is **18**.
 
-## Heatmap method
+## Heatmap visualization
 
 Each heatmap groups movies by a feature on the x-axis and log popularity on the y-axis. A grid starts with zeros. The counting loop reads each movie's two values, selects the matching row and column, and adds 1 to that cell.
 
