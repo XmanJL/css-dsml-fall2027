@@ -1,146 +1,155 @@
-# Movie Revenue Prediction with XGBoost
+# XGBoost Revenue Prediction Report
 
-## Overview
+## 1. Project Objective
 
-This notebook develops an XGBoost regression model to predict movie revenue. The prediction target is `log_revenue`. Multiple XGBoost configurations were trained and compared using a validation set. The best configuration was then evaluated on a separate test set. Additional analysis examined feature importance and the relationship between movie genres and revenue.
+This notebook builds XGBoost regression models to predict a movie's `log_revenue`. The workflow compares several model configurations, evaluates them with validation data, selects the best configuration, and then measures its performance on an unseen test set.
 
-## Data Preparation
+The notebook also includes two additional analyses:
 
-The dataset was loaded from `09_popularity_features.csv`. The original dataset contained movie identifiers, numerical features, categorical/text fields, engineered features, and revenue-related columns.
+- A genre-only model that uses movie genre indicators as predictors.
+- A cleaned-data model that removes rows where `log_revenue` is missing or equal to zero.
 
-The following columns were excluded from the main model:
+## 2. Libraries and Data
 
-- `id`, because it is only an identifier.
-- `log_revenue`, because it is the target being predicted.
-- `revenue_reported`, because it directly reveals the target and would create target leakage.
-- `target_log_popularity`, because it was created for a different prediction task.
-- Raw text and categorical columns such as titles, descriptions, directors, cast, keywords, and production information.
+The notebook imports pandas and NumPy for data processing, Matplotlib and Seaborn for visualization, XGBoost for modeling, and scikit-learn for splitting the data and calculating evaluation metrics.
 
-The remaining 18 features were numerical or binary features, including release information, budget, runtime, movie counts, cast and crew counts, and indicators such as `has_collection` and `has_director`.
+The first dataset is loaded from `09_popularity_features.csv`. The target variable is `log_revenue`. The notebook finds 38,032 missing values in this target column.
 
-Missing feature values were replaced with zero. This was appropriate for some count and indicator features, but zero imputation should be interpreted carefully for variables such as budget or runtime. The notebook also replaced missing `log_revenue` values with zero. Because `log_revenue` is the target, a stronger approach would be to remove rows with missing target values rather than treating missing revenue as a true zero target.
+## 3. Feature Preparation
 
-## Train, Validation, and Test Split
+The following columns are removed because they are identifiers, text fields, categorical list fields, or other fields not used in this numerical XGBoost model:
 
-The data was split into three subsets:
+`id`, `log_revenue`, `revenue_reported`, `target_log_popularity`, `genres`, `production_companies`, `production_countries`, `spoken_languages`, `director`, `status`, `title`, `original_title`, `overview`, `top_cast`, `keywords`, and `original_language`.
 
-| Set | Rows | Purpose |
+After these columns are removed, the remaining columns are assigned to `x`, while `log_revenue` is assigned to `y`. A check confirms that no object or string columns remain. Missing feature values and missing target values are filled with zero for the first modeling approach.
+
+The resulting feature matrix contains 18 numerical features.
+
+## 4. Training, Validation, and Test Splits
+
+The data is divided into three groups using `train_test_split` with `random_state=67`:
+
+| Dataset | Rows | Purpose |
 |---|---:|---|
-| Training | 36,344 | Train the XGBoost models |
+| Training | 36,344 | Fit the XGBoost models |
 | Validation | 4,543 | Compare hyperparameter configurations |
-| Test | 4,543 | Evaluate the selected model once |
+| Test | 4,543 | Final evaluation of the selected model |
 
-The split used `random_state=67` so the same rows could be reproduced in later runs.
+The split is approximately 80% training, 10% validation, and 10% testing. The test set is not used while selecting the model configuration.
 
-## Model Training
+## 5. XGBoost Configuration
 
-Thirty-five XGBoost regression configurations were tested. The hyperparameters varied across:
+The initial model uses the `XGBRegressor` class with:
 
-- `n_estimators`: 100 to 500 trees
-- `max_depth`: 2 to 8
-- `learning_rate`: 0.01 to 0.05
+- `objective="reg:squarederror"`
+- `random_state=67`
+- `n_estimators=100`
+- `max_depth=3`
+- `learning_rate=0.1`
 
-Each model was trained only on the training set. Predictions were made on the validation set, and each configuration was evaluated using:
+The main hyperparameter comparison tests 35 configurations. The tested ranges are:
 
-- Mean Absolute Error (MAE)
-- Root Mean Squared Error (RMSE)
-- R-squared (R²)
+| Hyperparameter | Values tested |
+|---|---|
+| `n_estimators` | 100, 200, 300, 400, 500 |
+| `max_depth` | 2, 3, 4, 5, 6, 7, 8 |
+| `learning_rate` | 0.01, 0.02, 0.03, 0.04, 0.05 |
 
-Lower MAE and RMSE indicate smaller prediction errors. Higher R² indicates that the model explains more variation in the target.
+Each configuration is trained on the training set and evaluated on the validation set using MAE, RMSE, and R².
 
-## Validation Results
+## 6. Full-Dataset Model Results
 
-The best configuration was selected using the lowest validation RMSE:
+For the first experiment, the best configuration is selected by the lowest validation RMSE. The lowest RMSE occurs for model 18:
 
-| Hyperparameter | Selected value |
+| Setting | Value |
 |---|---:|
 | `n_estimators` | 300 |
 | `max_depth` | 5 |
 | `learning_rate` | 0.03 |
+| Validation MAE | 2.027446 |
+| Validation RMSE | 3.867541 |
+| Validation R² | 0.603582 |
 
-The selected model had the following validation results:
+The selected model is then evaluated once on the test set:
 
-| Metric | Validation result |
+| Test metric | Result |
 |---|---:|
-| MAE | 2.0274 |
-| RMSE | 3.8675 |
-| R² | 0.6036 |
+| MAE | 2.086006 |
+| RMSE | 3.994792 |
+| R² | 0.550910 |
 
-The notebook includes two visualizations comparing the tested configurations. The first compares validation MAE and RMSE, where lower values are better. The second compares validation R², where higher values are better.
+The notebook visualizes validation MAE and RMSE, validation R², predicted versus actual revenue, and the residuals. It also creates a feature-importance plot. The notebook identifies `log_budget` as the most important feature in the full-dataset model.
 
-## Final Test Evaluation
+An inference example uses the first row of the test set and predicts a `log_revenue` of approximately `0.08295529`.
 
-After selecting the configuration using only the validation results, the selected model was evaluated on the test set:
+## 7. Genre-Only Model
 
-| Metric | Test result |
+The notebook next loads `10_genre_features.csv` and uses 19 binary genre columns as predictors:
+
+`Drama`, `Crime`, `Comedy`, `Action`, `Thriller`, `Adventure`, `Science Fiction`, `Animation`, `Family`, `Romance`, `Mystery`, `Music`, `Horror`, `Fantasy`, `Documentary`, `War`, `Western`, `History`, and `Foreign`.
+
+The genre data is split into training, validation, and test sets. A preliminary genre model uses 200 trees, a maximum depth of 3, and a learning rate of 0.10. Its validation performance is:
+
+| Metric | Result |
 |---|---:|
-| MAE | 2.0860 |
-| RMSE | 3.9948 |
-| R² | 0.5509 |
+| MAE | 3.942552 |
+| RMSE | 5.650168 |
+| R² | 0.080655 |
 
-The test results are slightly worse than the validation results, which is normal because the test set contains unseen data. The test R² of approximately 0.55 indicates that the final model explained about 55% of the variation in `log_revenue` for the test movies.
+The notebook then tests the same 35 hyperparameter configurations. The best genre configuration, based on the lowest validation RMSE, is model 14:
 
-## Predicted-versus-Actual Visualization
+- `n_estimators=400`
+- `max_depth=4`
+- `learning_rate=0.04`
+- Validation MAE: `3.925638`
+- Validation RMSE: `5.645629`
+- Validation R²: `0.082131`
 
-The notebook includes a predicted-versus-actual scatter plot for the selected model on the test set. The red dashed line represents perfect predictions. Points closer to this line indicate more accurate predictions, while points farther away represent larger errors.
+The genre feature-importance results identify Adventure as the most important genre feature, followed by Thriller, Foreign, Action, and Comedy. The genre revenue visualization also shows that Adventure has the highest average log revenue in this dataset, while Foreign has the lowest. These are associations in the data and do not mean that genre alone determines a movie's revenue.
 
-Because the model predicts `log_revenue`, the axes should ideally be labeled `Actual Log Revenue` and `Predicted Log Revenue` unless the predictions are converted back to the original revenue scale using the inverse of the logarithm used during feature engineering.
+## 8. Cleaned-Data Model
 
-## Inference Example
+Because many rows have missing or zero revenue values, the notebook creates `clean_df` by keeping only rows where `log_revenue` is present and not equal to zero. This leaves 7,398 rows.
 
-The notebook selects one movie sample from the test set and passes it to the selected model:
+The cleaned data is split as follows:
 
-```python
-movie_sample = x_test.iloc[[0]]
-predicted_log_revenue = best_model.predict(movie_sample)[0]
-```
-
-The example produced a predicted log revenue of approximately `0.0830`. This demonstrates how the trained model can accept one movie's features and produce a prediction.
-
-## Optional Residual and Feature-Importance Analysis
-
-The residual plot displays the difference between the actual and predicted log revenue values. Residuals were calculated as:
-
-```python
-residuals = y_test - y_test_pred
-```
-
-The notebook also displays the ten most important features according to the selected XGBoost model. These values describe how useful each feature was for the model's tree decisions; they should not be interpreted as proof that a feature causes revenue to increase or decrease.
-
-## Genre Analysis
-
-A separate genre-only XGBoost model was trained using 20 binary genre features. Each genre was represented by a column containing `0` or `1`, indicating whether a movie belonged to that genre.
-
-Thirty-five genre-model configurations were compared using validation results. The best genre-only configuration was:
-
-| Hyperparameter | Selected value |
+| Dataset | Rows |
 |---|---:|
-| `n_estimators` | 300 |
+| Training | 5,918 |
+| Validation | 740 |
+| Test | 740 |
+
+The same 35 hyperparameter configurations are trained and compared again. The best cleaned-data model is model 12:
+
+| Setting | Value |
+|---|---:|
+| `n_estimators` | 200 |
 | `max_depth` | 4 |
-| `learning_rate` | 0.03 |
+| `learning_rate` | 0.02 |
+| Validation MAE | 1.398446 |
+| Validation RMSE | 2.149314 |
+| Validation R² | 0.500575 |
 
-Its validation results were:
+The selected model is evaluated on the cleaned test set:
 
-| Metric | Genre-model validation result |
+| Test metric | Result |
 |---|---:|
-| MAE | 3.9386 |
-| RMSE | 5.6362 |
-| R² | 0.0852 |
+| MAE | 1.415268 |
+| RMSE | 2.080804 |
+| R² | 0.520761 |
 
-The genre-only model performed substantially worse than the full-feature model. This suggests that genres alone do not provide enough information to predict movie revenue accurately. Budget, popularity-related information, release information, runtime, and other engineered features add important predictive information.
+The notebook creates three final visualizations for this model:
 
-The genre feature-importance results ranked the genres as follows at the top:
+1. Validation MAE and RMSE across all configurations.
+2. Validation R² across all configurations.
+3. Predicted versus actual log revenue, including a diagonal line representing perfect predictions.
 
-1. Adventure
-2. Thriller
-3. Foreign
-4. Romance
-5. Action
+It also creates a residual plot. Residuals are calculated as actual log revenue minus predicted log revenue. Values above zero indicate underprediction, while values below zero indicate overprediction.
 
-The genre revenue visualization compared the average `log_revenue` for movies associated with each genre. Adventure had the highest average log revenue in this dataset, while TV Movie, Foreign, and Documentary had much lower averages. These are associations in the dataset, not causal effects. Also, a movie with multiple genres contributes to the average for each of its genres.
+## 9. Final Conclusion
 
-## Main Findings
+The cleaned-data model is the final selected model in the notebook because it avoids treating missing or zero revenue values as ordinary observations and produces the best final error values among the completed experiments. Its test results are an MAE of `1.415268`, an RMSE of `2.080804`, and an R² of `0.520761`.
 
-The full-feature XGBoost model performed better than the genre-only model. The selected full-feature model achieved a test RMSE of approximately 3.99 and a test R² of approximately 0.55 on the log-revenue scale. The genre-only model achieved a validation R² of only approximately 0.085, showing that genre information by itself explains relatively little of the variation in movie revenue.
+The full-dataset model achieved a higher test R² of `0.550910`, but it was trained after replacing missing target values with zero. Therefore, the two experiments measure performance on different target populations and should not be compared as if they were evaluated on identical data. The cleaned-data results provide the more focused assessment for movies with recorded, nonzero revenue.
 
-Overall, revenue prediction benefits from combining multiple types of information rather than relying on genre alone. The most important limitation in the current workflow is the treatment of missing target values. Future versions should remove rows with missing `log_revenue` before splitting instead of filling the target with zero.
+Overall, the models show that numerical movie attributes, especially budget-related information, provide more predictive value than genre indicators alone. The genre-only model has a much lower R², demonstrating that genre by itself is not sufficient to accurately predict movie revenue.
