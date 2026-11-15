@@ -14,7 +14,7 @@ Our dataset was `data\features\09_popularity_features.csv`.
 ## Key Decisions
 ### Features Used 
 Our model used numeric movie metadata and two compact categorical variables. Features like identifiers, raw text/list fields, and revenue fields were excluded because they were irrelevant or could introduce target leaks.  
-- The features we included were: `release_year`, `release_month`, `release_decade`, `log_budget`, `runtime`, `genre_count`, `has_collection`, `company_count`, `country_count`, `spoken_language_count`, `cast_size`, `crew_size`, `has_director`, `keyword_count`, `title_word_count`, `overview_word_count`, `title_differs_from_original`, `original_language`, `status, budget_reported`
+- The 20 features included were: `release_year`, `release_month`, `release_decade`, `log_budget`, `runtime`, `genre_count`, `has_collection`, `company_count`, `country_count`, `spoken_language_count`, `cast_size`, `crew_size`, `has_director`, `keyword_count`, `title_word_count`, `overview_word_count`, `title_differs_from_original`, `original_language`, `status, budget_reported`
 
 ### Model Configuration and Hyperparameters Tested
 Eight Gradient Boosting Regressor configurations were tested:  
