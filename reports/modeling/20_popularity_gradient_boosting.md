@@ -43,9 +43,7 @@ Lower MAE and RMSE are better; higher R² is better.
 | 100 | 0.05 | 3 | 0.405573 | 0.523286 | 0.569365 |
 | 200 | 0.05 | 3 | 0.394614 | 0.512611 | 0.586755 |
 | 100 | 0.10 | 3 | 0.394878 | 0.512889 | 0.586307 |
-| 200 | 0.10 | 3 | 0.390236 | 0.507570 | 0.594842 |
-
-![validation_model_comparison](attachment:validation_model_comparison.png)
+| 200 | 0.10 | 3 | 0.390236 | 0.507570 | 0.594842 | 
 
 ### Optimal Hyperparameter Configuration
 M8 was selected using only validation results: 200 estimators, learning rate 0.10, and maximum depth 3. It achieved the lowest validation RMSE (0.5076), the lowest validation MAE (0.3902), and the highest validation R² (0.5948).  
@@ -60,7 +58,6 @@ After selecting M8, the model was retrained using the combined training and vali
 | R² | 0.6136 |
 
 The test R² of 0.6136 indicates that the model explains approximately 61% of the variation in log popularity. Because the target is logarithmic, MAE and RMSE are measured in log-popularity units.  
-![test_predicted_vs_actual](attachment:test_predicted_vs_actual.png)  
 
 ### Inference Example  
 The script selected the first movie sample from the held-out test set and passed its selected feature vector through the fitted preprocessing pipeline.  
