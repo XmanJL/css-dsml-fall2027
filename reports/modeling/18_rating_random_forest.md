@@ -124,3 +124,59 @@ Configuration 4 achieved the best validation results among the 5 configurations 
 The final model achieved an MAE of 0.5648 and R2 of 0.3897 on the test set. The model was able to learn patterns related to movie ratings but some variation in ratings remains unexplained.
 
 The inference example also showed that the model could produce a prediction close to an actual movie rating with a difference of about 0.21 points. 
+
+## Additional Hyperparameter Tuning
+
+Following the review feedback, more hyperparameter combinations were tested to try to improve the model's performance. The 5 original configurations were kept, and 11 more were added, bringing the total to 16. Each new configuration changed one setting from the 300 tree, no maximum depth, minimum samples split of 2 configuration (except the first three, which changed the number of trees, maximum depth, and minimum samples split). The validation results table in the notebook now also shows `min_samples_leaf`, `max_features`, and `bootstrap` for every configuration.
+
+**Additional Random Forest Configurations:**
+
+- **Configuration 6:** 500 trees, no maximum depth, minimum samples split of 2.
+- **Configuration 7:** 300 trees, maximum depth of 30, minimum samples split of 10.
+- **Configuration 8:** 300 trees, maximum depth of 50, minimum samples split of 20.
+- **Configuration 9:** 300 trees, no maximum depth, minimum samples split of 2, minimum samples per leaf of 2.
+- **Configuration 10:** 300 trees, no maximum depth, minimum samples split of 2, minimum samples per leaf of 4.
+- **Configuration 11:** 300 trees, no maximum depth, minimum samples split of 2, minimum samples per leaf of 8.
+- **Configuration 12:** 300 trees, no maximum depth, minimum samples split of 2, `max_features` of "sqrt".
+- **Configuration 13:** 300 trees, no maximum depth, minimum samples split of 2, `max_features` of "log2".
+- **Configuration 14:** 300 trees, no maximum depth, minimum samples split of 2, `max_features` of 0.5.
+- **Configuration 15:** 300 trees, no maximum depth, minimum samples split of 2, `max_features` of 0.8.
+- **Configuration 16:** 300 trees, no maximum depth, minimum samples split of 2, bootstrap sampling turned off.
+
+`class_weight` was not tested because it only applies to classification models and is not available in `RandomForestRegressor`.
+
+**Validation Results for the Additional Configurations (Using MAE, RMSE, R2):**
+
+- Configuration 6: MAE = 0.5664, RMSE = 0.7455, R2 = 0.3677.
+- Configuration 7: MAE = 0.5666, RMSE = 0.7460, R2 = 0.3668.
+- Configuration 8: MAE = 0.5665, RMSE = 0.7455, R2 = 0.3677.
+- Configuration 9: MAE = 0.5636, RMSE = 0.7439, R2 = 0.3704.
+- Configuration 10: MAE = 0.5634, RMSE = 0.7440, R2 = 0.3704.
+- Configuration 11: MAE = 0.5641, RMSE = 0.7448, R2 = 0.3690.
+- Configuration 12: MAE = 0.5688, RMSE = 0.7473, R2 = 0.3647.
+- Configuration 13: MAE = 0.5710, RMSE = 0.7495, R2 = 0.3610.
+- Configuration 14: MAE = 0.5617, RMSE = 0.7399, R2 = 0.3772.
+- Configuration 15: MAE = 0.5655, RMSE = 0.7436, R2 = 0.3710.
+- Configuration 16: MAE = 0.7494, RMSE = 0.9908, R2 = -0.1168.
+
+Configuration 14 (`max_features` of 0.5) had the lowest validation MAE and RMSE and the highest validation R2 of all 16 configurations. Turning off bootstrap sampling (Configuration 16) performed much worse than the others, and limiting `max_features` to "sqrt" or "log2" performed slightly worse than using all features. Increasing the number of trees to 500 and using stronger depth and split limits made little difference.
+
+**Updated Selected Configuration:**
+- `n_estimators`: 300
+- `max_depth`: None
+- `min_samples_split`: 2
+- `max_features`: 0.5
+
+**Updated Final Test Results:**
+- MAE: 0.5660
+- RMSE: 0.7233
+- R2: 0.3898
+
+The additional combinations improved validation performance only slightly, and the test performance was essentially unchanged (MAE of 0.5642 and R2 of 0.3897 before the additional combinations, compared with MAE of 0.5660 and R2 of 0.3898 after). This suggests that tuning these hyperparameters further does not meaningfully improve the model, and that the remaining unexplained variation in ratings is likely limited by the available features rather than the model settings.
+
+**Updated One-Movie Prediction Example:**
+- Predicted rating: 5.72
+- Actual rating: 5.50
+- Difference: 0.22 rating points
+
+**Updated Visualizations:** The Validation Performance Comparison charts now compare all 16 configurations. The notebook labels them Config 0 to Config 15, so Config 0 is Configuration 1 and Config 15 is Configuration 16.
