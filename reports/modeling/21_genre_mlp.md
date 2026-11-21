@@ -59,6 +59,8 @@ I then used the chosen model and 0.25 cutoff on the 4,300 test movies. I did not
 
 Six test movies had no predicted genre. Micro F1 counts all genre decisions together. Macro F1 averages the 20 genre scores equally, so the lower macro score shows the results are still uneven by genre.
 
+I also kept two checks from my teammate's draft: Hamming loss was **0.124**, which is the share of wrong yes/no genre decisions, and macro Jaccard was **0.181**, which measures overlap between predicted and recorded genres for each label.
+
 One limit: we had already looked at this same test split in the earlier four-model version. I did not tune this update on the new test result, but it is no longer a completely untouched test set. I would describe these as updated results, not a fresh independent benchmark.
 
 ## 8. Compare the leading settings in a chart
