@@ -1,6 +1,6 @@
 # My notes for Issue #37: Genre Prediction with MLP
 
-These are my notes for the first five parts. I still need to add the final model choice, test results, charts, and an example prediction later.
+These are my notes as I worked through the model, from preparing the data to checking the final results.
 
 ## 1. Pick the inputs and answers
 
@@ -50,8 +50,47 @@ I used `model.predict(X_validation_ready)` for each model, then compared its pre
 | `slower_rate` | 0.658 | 0.215 | 0.324 | 0.130 |
 | `one_layer_64` | 0.645 | 0.215 | 0.323 | 0.135 |
 
-`two_layers` has the highest validation micro F1 so far. Its recall is still low, and it predicted no genre for 1,492 validation movies. I have not used the test set to pick a model.
+`two_layers` had the highest validation micro F1 at the default 0.50 cutoff. Its recall was still low, and it predicted no genre for 1,492 validation movies. I used these validation results to pick the model before checking the test set.
 
-## Next parts
+## 6. Choose the model and cutoff
 
-Pick a model from validation results, test it once, make the required charts, show one prediction, and explain which genres it does well or poorly on.
+I took `validation_results.loc[0, "model"]`, which gave me `two_layers` because it had the highest micro F1 in step 5. Then I used `predict_proba` to get its probability for each genre on validation movies. I tried cutoffs from 0.20 to 0.50 and turned each probability into 1 or 0 with `>= threshold`.
+
+The best validation micro F1 in that list was **0.463 at 0.25**, so I chose 0.25. Its validation precision was 0.435 and recall was 0.495. Lowering the cutoff helped the model find more of the real genres. It also made more wrong predictions, which is why precision went down. This setting left only 3 validation movies with no predicted genre.
+
+## 7. Check the final test results
+
+After choosing the model and cutoff, I used them on the held-out 4,300 test movies. I did not change the settings based on the test scores.
+
+| Test metric | Score |
+| --- | ---: |
+| Micro precision | 0.437 |
+| Micro recall | 0.491 |
+| Micro F1 | 0.463 |
+| Macro precision | 0.343 |
+| Macro recall | 0.276 |
+| Macro F1 | 0.270 |
+
+Only 9 test movies had no predicted genre. Micro F1 combines all genre decisions, while macro F1 averages the 20 genre scores equally. The lower macro score tells me the model is uneven across genres.
+
+## 8. Compare the four model settings in a chart
+
+I made a bar chart using the validation micro and macro F1 values from step 5. I used `barh` so all four model names fit. These are the scores at the original 0.50 cutoff, before I adjusted the chosen model's cutoff. The `two_layers` version was highest in micro F1, although the four scores were close.
+
+## 9. See which genres were easier or harder
+
+I used `precision_score`, `recall_score`, and `f1_score` with `average=None` to get a separate test score for each genre. I also counted the actual test movies for each genre and made a horizontal F1 chart.
+
+Drama was highest at **0.693 F1** (2,029 actual test movies). Documentary was **0.603** (426) and Animation was **0.580** (187). TV Movie and Music were both **0.000** F1, so this model did not correctly predict those genres in the test set. Mystery was also low at **0.053**. The number of examples may be part of the problem, but the scores alone do not prove the cause.
+
+## 10. Try one movie prediction
+
+I picked a test movie with at least one predicted genre so the example is easy to read. I passed its input row through the same `preprocessor.transform` step, called `best_model.predict_proba`, and used the 0.25 cutoff. The movie shown was *Back to Stay*. The model predicted Drama and Comedy, and those were its recorded genres too. This is one example only; all 4,300 test movies are included in the test scores.
+
+## 11. Show what the cutoff changed
+
+I plotted validation micro and macro F1 against the cutoffs I tried. The chart marks 0.25 with a dashed line. It helps show why I used that cutoff: its micro F1 was a little higher than at 0.20 and much higher than at 0.50. Macro F1 was actually higher at 0.20, so choosing micro F1 as the main goal was a real tradeoff.
+
+## 12. What I learned from the results
+
+The model can find common genres like Drama fairly well, but its performance changes a lot by genre. The overall test micro F1 was **0.463** and macro F1 was **0.270**. I would explain the gap as a sign that some genres are much harder for this model. I also need to mention that all four MLPs reached the 80-iteration limit and showed convergence warnings, so more training or different settings might change the results.
